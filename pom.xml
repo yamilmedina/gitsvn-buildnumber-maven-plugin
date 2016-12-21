@@ -1,0 +1,48 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>io.github.yamilmedina</groupId>
+    <artifactId>gitsvn-buildnumber-maven-plugin</artifactId>
+    <version>0.1.0</version>
+    <packaging>maven-plugin</packaging>
+ 
+    <name>gitsvn buildnumber maven plugin</name>
+    <description>Maven plugin to get revision number in git-svn environment</description>
+    
+    <developers>
+        <developer>
+            <name>Yamil Medina</name>
+            <email></email>
+        </developer>
+    </developers>
+    <inceptionYear>2016</inceptionYear>
+ 
+    <scm>
+    </scm>
+    
+    <properties>
+        <maven.api.version>3.1.0</maven.api.version>
+    </properties>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${maven.api.version}</version>
+        </dependency>
+ 
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven.api.version}</version>
+        </dependency>
+        
+        <!-- dependencies to annotations -->
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.5</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
