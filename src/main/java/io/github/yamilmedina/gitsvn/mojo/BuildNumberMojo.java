@@ -1,5 +1,6 @@
 package io.github.yamilmedina.gitsvn.mojo;
 
+import static io.github.yamilmedina.gitsvn.util.EnvironmentUtils.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +12,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-
-import static io.github.yamilmedina.gitsvn.util.EnvironmentUtils.*;
+import java.util.Arrays;
 
 /**
  *
@@ -42,35 +42,42 @@ public class BuildNumberMojo extends AbstractMojo {
             return;
         }
 
-        if (isWindowsOS()) {
+        if (isUnixOS()) {
+            getLog().info("*NIX Platform");
+            CommandResponse command = executeCommand(pathToRevisionControlExec, "info");
+            if (!command.successfulExecution()) {
+                command = executeCommand(pathToRevisionControlExec, "svn log --oneline -1 | cut -d '|' -f1");
+            }
+            if (command.successfulExecution()) {
+
+            }
+        } else {
             //@todo: implement for windows platform.
             getLog().info("WINDOWS Platform");
             throw new MojoExecutionException("WINDOWS platform not supported yet.");
-        } else {
-            getLog().info("*NIX Platform");
-            String command = executeCommand(pathToRevisionControlExec + " log1");
-
         }
     }
 
-    private String executeCommand(String command) {
-        StringBuilder output = new StringBuilder();
-        Process p;
+    private CommandResponse executeCommand(String... command) {
+        CommandResponse commandResponse = new CommandResponse();
         try {
-            p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            Process process = Runtime.getRuntime().exec(command);
+            final int exitCode = process.waitFor();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = "";
+            StringBuilder output = new StringBuilder();
             while ((line = reader.readLine()) != null) {
                 output.append(line).append("\n");
             }
-            getLog().info(output.toString());
+            commandResponse.setResponseCode(exitCode);
+            commandResponse.setResponse(output.toString());
         } catch (IOException e) {
-            getLog().error("Error executing plugin " + e);
+            getLog().error(String.format("Error executing command %s ", Arrays.toString(command)) + e);
         } catch (InterruptedException e) {
-            getLog().error("Error executing plugin " + e);
+            Thread.currentThread().interrupt();
+            getLog().error(String.format("Error executing command %s ", Arrays.toString(command)) + e);
         }
-        return output.toString();
+        return commandResponse;
     }
 
 }
