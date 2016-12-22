@@ -1,4 +1,4 @@
-package io.github.yamilmedina.gitsvn.mojo;
+package io.github.yamilmedina.gitsvn.util;
 
 /**
  *

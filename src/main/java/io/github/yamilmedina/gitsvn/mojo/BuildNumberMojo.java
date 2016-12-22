@@ -1,10 +1,9 @@
 package io.github.yamilmedina.gitsvn.mojo;
 
+import io.github.yamilmedina.gitsvn.util.CommandExecutor;
+import io.github.yamilmedina.gitsvn.util.CommandResponse;
 import static io.github.yamilmedina.gitsvn.util.EnvironmentUtils.*;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -12,7 +11,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import java.util.Arrays;
 
 /**
  *
@@ -33,8 +31,14 @@ public class BuildNumberMojo extends AbstractMojo {
     @Parameter(property = "skip", defaultValue = "false")
     private boolean skip;
 
-    @Parameter(property = "pathToRevisionControlExec", required = true)
+    @Parameter(property = "pathToRevisionControlExec", required = false)
     private String pathToRevisionControlExec;
+
+    @Parameter(property = "useGitRevision", defaultValue = "false")
+    private boolean useGitRevision;
+
+    @Parameter(property = "revisionControlSystem", defaultValue = "SVN")
+    private RevisionControlSystem revisionControlSystem;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
@@ -42,42 +46,34 @@ public class BuildNumberMojo extends AbstractMojo {
             return;
         }
 
-        if (isUnixOS()) {
-            getLog().info("*NIX Platform");
-            CommandResponse command = executeCommand(pathToRevisionControlExec, "info");
-            if (!command.successfulExecution()) {
-                command = executeCommand(pathToRevisionControlExec, "svn log --oneline -1 | cut -d '|' -f1");
-            }
-            if (command.successfulExecution()) {
-
-            }
-        } else {
-            //@todo: implement for windows platform.
-            getLog().info("WINDOWS Platform");
+        if (isWindowsOS()) {
             throw new MojoExecutionException("WINDOWS platform not supported yet.");
         }
-    }
 
-    private CommandResponse executeCommand(String... command) {
-        CommandResponse commandResponse = new CommandResponse();
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-            final int exitCode = process.waitFor();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = "";
-            StringBuilder output = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            commandResponse.setResponseCode(exitCode);
-            commandResponse.setResponse(output.toString());
-        } catch (IOException e) {
-            getLog().error(String.format("Error executing command %s ", Arrays.toString(command)) + e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            getLog().error(String.format("Error executing command %s ", Arrays.toString(command)) + e);
+        String svnExec = pathToRevisionControlExec != null ? pathToRevisionControlExec : RevisionControlSystem.SVN.toString();
+        final boolean isSvnRepo = isSvnRepo(svnExec);
+        String gitExec = pathToRevisionControlExec != null ? pathToRevisionControlExec : RevisionControlSystem.GIT.toString();
+        final boolean isGitRepo = isGitRepo(gitExec);
+        if (!isSvnRepo && !isGitRepo) {
+            throw new MojoFailureException("Maybe this is not a SVN/GIT repo or the path to SVN/GIT binaries are incorrect");
         }
-        return commandResponse;
+        CommandExecutor cmdExecutor = CommandExecutor.getInstance();
+        if (isSvnRepo) {
+            //manipular revision svn
+            String svnRevisionInfo = "log -l 1 | grep -e '^r[0-9]*'";
+        }
+        if (!isSvnRepo && isGitRepo) {
+            //manipular revision git
+        }
+
+//        CommandExecutor cmdExecutor = CommandExecutor.getInstance();
+//        CommandResponse command = cmdExecutor.execute(pathToRevisionControlExec, "info");
+//        if (!command.successfulExecution()) {
+//            command = cmdExecutor.execute(pathToRevisionControlExec, "log --oneline -1 | cut -d '|' -f1");
+//        }
+//        if (command.successfulExecution()) {
+//
+//        }
     }
 
 }

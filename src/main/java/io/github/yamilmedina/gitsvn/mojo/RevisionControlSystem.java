@@ -6,5 +6,17 @@ package io.github.yamilmedina.gitsvn.mojo;
  */
 public enum RevisionControlSystem {
 
-    GIT, SVN;
+    GIT {
+                @Override
+                public String toString() {
+                    return "git";
+                }
+            },
+    SVN {
+                @Override
+                public String toString() {
+                    return "svn";
+                }
+
+            };
 }

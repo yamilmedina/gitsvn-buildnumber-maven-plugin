@@ -23,4 +23,14 @@ public class EnvironmentUtils {
     public static boolean isWindowsOS() {
         return !isUnixOS();
     }
+
+    public static boolean isGitRepo(String rcsExec) {
+        CommandResponse cmdResponse = CommandExecutor.getInstance().execute(rcsExec, "rev-parse --is-inside-work-tree");
+        return cmdResponse.getResponseCode() == CommandResponse.SUCCESS_CODE;
+    }
+
+    public static boolean isSvnRepo(String rcsExec) {
+        CommandResponse cmdResponse = CommandExecutor.getInstance().execute(rcsExec, "info");
+        return cmdResponse.getResponseCode() == CommandResponse.SUCCESS_CODE;
+    }
 }
