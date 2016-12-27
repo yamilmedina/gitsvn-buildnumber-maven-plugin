@@ -25,7 +25,7 @@ public class EnvironmentUtils {
     }
 
     public static boolean isGitRepo(String rcsExec) {
-        CommandResponse cmdResponse = CommandExecutor.getInstance().execute(rcsExec, "rev-parse --is-inside-work-tree");
+        CommandResponse cmdResponse = CommandExecutor.getInstance().execute(rcsExec, "log", "--oneline", "-1");
         return cmdResponse.successfulExecution();
     }
 

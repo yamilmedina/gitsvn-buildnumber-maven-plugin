@@ -59,21 +59,18 @@ public class BuildNumberMojo extends AbstractMojo {
         }
         CommandExecutor cmdExecutor = CommandExecutor.getInstance();
         if (isSvnRepo) {
-            //manipular revision svn
-            String svnRevisionInfo = "log -l 1 | grep -e '^r[0-9]*'";
+            final String[] cmd = {"/bin/sh", "-c", svnExec + " log -l 1 | grep -e '^r[0-9]*'"};
+            CommandResponse svnLog = cmdExecutor.execute(cmd);
+            String revisionInfo = svnLog.successfulExecution() ? svnLog.getResponse() : "@todo: fechaBuild on fail";
+            getLog().info(revisionInfo);
         }
         if (!isSvnRepo && isGitRepo) {
-            //manipular revision git
+            final String[] cmd = {"/bin/sh", "-c", gitExec + " log --oneline -1 | cut -d '|' -f1"};
+            CommandResponse svnLog = cmdExecutor.execute(cmd);
+            String revisionInfo = svnLog.successfulExecution() ? svnLog.getResponse() : "@todo: fechaBuild on fail";
+            getLog().info(revisionInfo);
         }
 
-//        CommandExecutor cmdExecutor = CommandExecutor.getInstance();
-//        CommandResponse command = cmdExecutor.execute(pathToRevisionControlExec, "info");
-//        if (!command.successfulExecution()) {
-//            command = cmdExecutor.execute(pathToRevisionControlExec, "log --oneline -1 | cut -d '|' -f1");
-//        }
-//        if (command.successfulExecution()) {
-//
-//        }
     }
 
 }
