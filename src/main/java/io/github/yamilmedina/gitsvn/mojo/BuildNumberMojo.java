@@ -57,20 +57,22 @@ public class BuildNumberMojo extends AbstractMojo {
         if (!isSvnRepo && !isGitRepo) {
             throw new MojoFailureException("Maybe this is not a SVN/GIT repo or the path to SVN/GIT binaries are incorrect");
         }
-        CommandExecutor cmdExecutor = CommandExecutor.getInstance();
+
         if (isSvnRepo) {
             final String[] cmd = {"/bin/sh", "-c", svnExec + " log -l 1 | grep -e '^r[0-9]*'"};
-            CommandResponse svnLog = cmdExecutor.execute(cmd);
-            String revisionInfo = svnLog.successfulExecution() ? svnLog.getResponse() : "@todo: fechaBuild on fail";
-            getLog().info(revisionInfo);
+            findRevisionInfo(cmd);
         }
         if (!isSvnRepo && isGitRepo) {
             final String[] cmd = {"/bin/sh", "-c", gitExec + " log --oneline -1 | cut -d '|' -f1"};
-            CommandResponse svnLog = cmdExecutor.execute(cmd);
-            String revisionInfo = svnLog.successfulExecution() ? svnLog.getResponse() : "@todo: fechaBuild on fail";
-            getLog().info(revisionInfo);
+            findRevisionInfo(cmd);
         }
+    }
 
+    private String findRevisionInfo(String[] cmd) {
+        CommandResponse log = CommandExecutor.getInstance().execute(cmd);
+        String revisionInfo = log.successfulExecution() ? log.getResponse() : "@todo: fechaBuild on fail";
+        getLog().info(revisionInfo);
+        return revisionInfo;
     }
 
 }
