@@ -63,7 +63,7 @@ public class BuildNumberMojo extends AbstractMojo {
             findRevisionInfo(cmd);
         }
         if (!isSvnRepo && isGitRepo) {
-            final String[] cmd = {"/bin/sh", "-c", gitExec + " log --oneline -1 | cut -d '|' -f1"};
+            final String[] cmd = {"/bin/sh", "-c", gitExec + " rev-parse HEAD"};
             findRevisionInfo(cmd);
         }
     }
